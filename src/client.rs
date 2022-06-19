@@ -100,11 +100,51 @@ impl QBittorrentClient {
     pub async fn add_torrent(&self, upload: &TorrentUpload) -> ClientResult<()> {
         if let (Some(auth_string), Some(conn)) = (self.auth_string.as_ref(), self.connection_info.as_ref()) {
             // Construct and send request to qbittorrent
-            let resp = self.client.post(format!("{}/api/v2/torrents/add", conn.url.clone()))
+            let _resp = self.client.post(format!("{}/api/v2/torrents/add", conn.url.clone()))
                 .header(reqwest::header::COOKIE, auth_string.clone())
                 .multipart(upload.to_multipart_form())
                 .send().await?.error_for_status()?;
 
+            Ok(())
+        } else {
+            Err(ClientError::Authorization)
+        }
+    }
+
+    /// Remove a torrent from the client.
+    pub async fn remove_torrent(&self, torrent: &TorrentInfo, delete_files: bool) -> ClientResult<()> {
+        if let (Some(auth_string), Some(conn)) = (self.auth_string.as_ref(), self.connection_info.as_ref()) {
+            // Construct and send request to qbittorrent
+            let _resp = self.client.post(format!("{}/api/v2/torrents/delete", conn.url.clone()))
+                .header(reqwest::header::COOKIE, auth_string.clone())
+                .form(&[
+                    ("hashes", torrent.hash.clone()),
+                    ("deleteFiles", delete_files.to_string()),
+                ]).send().await?.error_for_status()?;
+
+
+            Ok(())
+        } else {
+            Err(ClientError::Authorization)
+        }
+    }
+
+    /// Remove multiple torrents at once. `delete_files` applies to *all* torrents.
+    pub async fn remove_torrents(&self, torrents: Vec<&TorrentInfo>, delete_files: bool ) -> ClientResult<()> {
+        if let (Some(auth_string), Some(conn)) = (self.auth_string.as_ref(), self.connection_info.as_ref()) {
+            // Convert the hashes into a string concatenated with `|`
+            let hashes = torrents.iter()
+                .map(|t| t.hash.clone())
+                .collect::<Vec<_>>()
+                .join("|");
+
+            // Construct and send request to qbittorrent
+            let _resp = self.client.post(format!("{}/api/v2/torrents/delete", conn.url.clone()))
+                .header(reqwest::header::COOKIE, auth_string.clone())
+                .form(&[
+                    ("hashes", hashes),
+                    ("deleteFiles", delete_files.to_string()),
+                ]).send().await?.error_for_status()?;
             Ok(())
         } else {
             Err(ClientError::Authorization)
