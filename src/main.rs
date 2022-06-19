@@ -1,9 +1,6 @@
-#[macro_use]
-extern crate derive_builder;
+/// NOTE: USED FOR TESTING
 
 pub mod torrent;
-use std::path::Path;
-
 pub use torrent::*;
 
 pub mod client;
