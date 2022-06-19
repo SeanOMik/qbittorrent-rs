@@ -1,4 +1,9 @@
+#[macro_use]
+extern crate derive_builder;
+
 pub mod torrent;
+use std::path::Path;
+
 pub use torrent::*;
 
 pub mod client;
@@ -16,12 +21,6 @@ async fn main() {
         String::from("admin"),
         String::from("adminadmin")
     ).await.unwrap();
-
-    let torrents = client.get_torrent_list().await.unwrap();
-    
-    let first = torrents.first().unwrap();
-
-    client.get_torrent_trackers(first).await.unwrap();
 
     println!("Hello, world!");
 }
