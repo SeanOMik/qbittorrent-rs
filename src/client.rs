@@ -205,4 +205,54 @@ impl QBittorrentClient {
             Err(ClientError::Authorization)
         }
     }
+
+    /// Get all tags
+    pub async fn get_tags(&self) -> ClientResult<Vec<String>> {
+        if let (Some(auth_string), Some(conn)) = (self.auth_string.as_ref(), self.connection_info.as_ref()) {
+            // Construct and send request to qbittorrent
+            let resp = self.client.get(format!("{}/api/v2/torrents/tags", conn.url.clone()))
+                .header(reqwest::header::COOKIE, auth_string.clone())
+                .send().await?.error_for_status()?;
+
+            // Deserialize response
+            let content = resp.text().await?;
+            let tags: Vec<String> = serde_json::from_str(&content)?;
+
+            Ok(tags)
+        } else {
+            Err(ClientError::Authorization)
+        }
+    }
+
+    /// Create a new tag
+    pub async fn create_tag(&self, tag: &str) -> ClientResult<()> {
+        if let (Some(auth_string), Some(conn)) = (self.auth_string.as_ref(), self.connection_info.as_ref()) {
+            // Construct and send request to qbittorrent
+            let _resp = self.client.post(format!("{}/api/v2/torrents/createTags", conn.url.clone()))
+                .header(reqwest::header::COOKIE, auth_string.clone())
+                .form(&[
+                    ("tags", tag),
+                ]).send().await?.error_for_status()?;
+
+            Ok(())
+        } else {
+            Err(ClientError::Authorization)
+        }
+    }
+
+    /// Delete a tag
+    pub async fn delete_tag(&self, tag: &str) -> ClientResult<()> {
+        if let (Some(auth_string), Some(conn)) = (self.auth_string.as_ref(), self.connection_info.as_ref()) {
+            // Construct and send request to qbittorrent
+            let _resp = self.client.post(format!("{}/api/v2/torrents/deleteTags", conn.url.clone()))
+                .header(reqwest::header::COOKIE, auth_string.clone())
+                .form(&[
+                    ("tags", tag),
+                ]).send().await?.error_for_status()?;
+
+            Ok(())
+        } else {
+            Err(ClientError::Authorization)
+        }
+    }
 }
