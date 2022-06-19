@@ -1,6 +1,9 @@
-# A qBittorrent API library implemented in pure rust
+## Rust qBitorrent WebUI API implementation 
+This crate is pretty bare bones. Its used in another one of my projects so I only implemented what I needed and nothing else. Although it was a bit rushed, I feel like its a good starting point in the case that it might be expanded on further. Feel free to submit PRs.
 
-## TODO:
+<br>
+
+### TODO: ([qBittorrent API wiki](https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)))
 Authentication
 - [x] Login
 - [ ] Logout
