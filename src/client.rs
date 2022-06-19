@@ -97,6 +97,61 @@ impl QBittorrentClient {
         }
     }
 
+    /// Add a tracker to a torrent.
+    pub async fn add_torrent_tracker(&self, torrent: &TorrentInfo, tracker_url: String) -> ClientResult<()> {
+        if let (Some(auth_string), Some(conn)) = (self.auth_string.as_ref(), self.connection_info.as_ref()) {
+            // Construct and send request to qbittorrent
+            let _resp = self.client.post(format!("{}/api/v2/torrents/addTrackers", conn.url.clone()))
+                .header(reqwest::header::COOKIE, auth_string.clone())
+                .form(&[
+                    ("hash", torrent.hash.clone()),
+                    ("urls", tracker_url),
+                ])
+                .send().await?.error_for_status()?;
+
+            Ok(())
+        } else {
+            Err(ClientError::Authorization)
+        }
+    }
+
+    /// Replace a tracker url on a torrent.
+    pub async fn replace_torrent_tracker(&self, torrent: &TorrentInfo, old_url: String, new_url: String) -> ClientResult<()> {
+        if let (Some(auth_string), Some(conn)) = (self.auth_string.as_ref(), self.connection_info.as_ref()) {
+            // Construct and send request to qbittorrent
+            let _resp = self.client.post(format!("{}/api/v2/torrents/editTracker", conn.url.clone()))
+                .header(reqwest::header::COOKIE, auth_string.clone())
+                .form(&[
+                    ("hash", torrent.hash.clone()),
+                    ("origUrl", old_url),
+                    ("newUrl", new_url),
+                ])
+                .send().await?.error_for_status()?;
+
+            Ok(())
+        } else {
+            Err(ClientError::Authorization)
+        }
+    }
+
+    /// Remove a tracker url on a torrent.
+    pub async fn remove_torrent_tracker(&self, torrent: &TorrentInfo, tracker_url: String) -> ClientResult<()> {
+        if let (Some(auth_string), Some(conn)) = (self.auth_string.as_ref(), self.connection_info.as_ref()) {
+            // Construct and send request to qbittorrent
+            let _resp = self.client.post(format!("{}/api/v2/torrents/removeTrackers", conn.url.clone()))
+                .header(reqwest::header::COOKIE, auth_string.clone())
+                .form(&[
+                    ("hash", torrent.hash.clone()),
+                    ("urls", tracker_url),
+                ])
+                .send().await?.error_for_status()?;
+
+            Ok(())
+        } else {
+            Err(ClientError::Authorization)
+        }
+    }
+
     pub async fn add_torrent(&self, upload: &TorrentUpload) -> ClientResult<()> {
         if let (Some(auth_string), Some(conn)) = (self.auth_string.as_ref(), self.connection_info.as_ref()) {
             // Construct and send request to qbittorrent
