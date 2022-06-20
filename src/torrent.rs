@@ -279,56 +279,56 @@ pub struct TorrentUpload {
     /// URL(s) of the torrent files. When specifying `http` or `https` URLs, they
     /// don't always get downloaded by qbittorrent. The best way to verify if it was added
     /// to the client is to check the torrent list after the request.
-    urls: Vec<String>, // NOTE: Separated by new lines
+    pub urls: Vec<String>, // NOTE: Separated by new lines
 
     /// Binary data of the torrents that are being added.
     /// Torrent file data that is being added. (Name, Bytes)
-    torrents: Vec<(String, Vec<u8>)>,
+    pub torrents: Vec<(String, Vec<u8>)>,
 
     /// Download folder
-    save_path: Option<String>, // NOTE: Rename to `savepath` for (de)serialization
+    pub save_path: Option<String>, // NOTE: Rename to `savepath` for (de)serialization
 
     /// Cookie sent to download the .torrent file
-    cookie: Option<String>,
+    pub cookie: Option<String>,
 
     /// Category for the torrent
-    category: Option<String>,
+    pub category: Option<String>,
 
     /// Tags for the torrent
-    tags: Option<Vec<String>>, // NOTE: Split by commas
+    pub tags: Option<Vec<String>>, // NOTE: Split by commas
 
     /// Skip hash checking.
-    skip_hash_check: Option<bool>, // NOTE: Convert to string and rename to `skip_hash_check` for (de)serialization
+    pub skip_hash_check: Option<bool>, // NOTE: Convert to string and rename to `skip_hash_check` for (de)serialization
 
     /// Add torrents in the paused state.
-    paused: Option<bool>,
+    pub paused: Option<bool>,
 
     /// Create the root folder.
-    root_folder: Option<bool>, // NOTE: Convert to string for (de)serialization
+    pub root_folder: Option<bool>, // NOTE: Convert to string for (de)serialization
 
     /// Rename torrent
-    rename: Option<String>,
+    pub rename: Option<String>,
 
     /// Set torrent upload speed limit. Unit in bytes/second
-    upload_limit: Option<i64>, // NOTE: Rename to `upLimit` for (de)serialization
+    pub upload_limit: Option<i64>, // NOTE: Rename to `upLimit` for (de)serialization
 
     /// Set torrent download speed limit. Unit in bytes/second
-    download_limit: Option<i64>, // NOTE: Rename to `upLimit` for (de)serialization
+    pub download_limit: Option<i64>, // NOTE: Rename to `upLimit` for (de)serialization
 
     /// Set torrent share ratio limit
-    ratio_limit: Option<f32>, // NOTE: Rename to `ratioLimit` for (de)serialization
+    pub ratio_limit: Option<f32>, // NOTE: Rename to `ratioLimit` for (de)serialization
 
     /// Set torrent seeding time limit. Unit in seconds
-    seeding_time_limit: Option<u64>, // NOTE: Rename to `seedingTimeLimit` for (de)serialization
+    pub seeding_time_limit: Option<u64>, // NOTE: Rename to `seedingTimeLimit` for (de)serialization
 
     /// Whether Automatic Torrent Management should be used
-    auto_tmm: Option<bool>, // NOTE: Rename to `autoTMM` for (de)serialization
+    pub auto_tmm: Option<bool>, // NOTE: Rename to `autoTMM` for (de)serialization
 
     /// Enable sequential download. Possible values are true, false (default)
-    sequential_download: Option<bool>, // NOTE: Rename to `sequentialDownload` and convert to string for (de)serialization
+    pub sequential_download: Option<bool>, // NOTE: Rename to `sequentialDownload` and convert to string for (de)serialization
 
     /// Prioritize download first last piece. Possible values are true, false (default)
-    first_last_piece_prio: Option<bool>, // NOTE: Rename to `firstLastPiecePrio` and convert to string for (de)serialization
+    pub first_last_piece_prio: Option<bool>, // NOTE: Rename to `firstLastPiecePrio` and convert to string for (de)serialization
 }
 
 #[derive(Debug, Default)]
