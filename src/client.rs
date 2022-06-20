@@ -1,20 +1,20 @@
 use crate::{error::ClientError, TorrentInfo, TorrentTracker, TorrentUpload};
 
-pub struct ConnectionInfo {
-    pub url: String,
-    pub username: String,
-    pub password: String,
+pub struct ConnectionInfo<'a> {
+    pub url: &'a str,
+    pub username: &'a str,
+    pub password: &'a str,
 }
 
 pub type ClientResult<T> = Result<T, ClientError>;
 
-pub struct QBittorrentClient {
+pub struct QBittorrentClient<'a> {
     client: reqwest::Client,
-    connection_info: Option<ConnectionInfo>,
+    connection_info: Option<ConnectionInfo<'a>>,
     auth_string: Option<String>,
 }
 
-impl QBittorrentClient {
+impl<'a> QBittorrentClient<'a> {
     pub fn new() -> Self {
         Self {
             client: reqwest::Client::new(),
@@ -24,7 +24,7 @@ impl QBittorrentClient {
     }
 
     /// Login to qBittorrent. This must be ran so that the client can make requests.
-    pub async fn login(&mut self, url: String, username: String, password: String) -> ClientResult<()> {
+    pub async fn login(&mut self, url: &'a str, username: &'a str, password: &'a str) -> ClientResult<()> {
         // Send response to get auth string
         let resp = self.client.post(format!("{}/api/v2/auth/login", url.clone()))
             .form(&[
@@ -185,7 +185,7 @@ impl QBittorrentClient {
     }
 
     /// Remove multiple torrents at once. `delete_files` applies to *all* torrents.
-    pub async fn remove_torrents(&self, torrents: Vec<&TorrentInfo>, delete_files: bool ) -> ClientResult<()> {
+    pub async fn remove_torrents(&self, torrents: Vec<TorrentInfo>, delete_files: bool ) -> ClientResult<()> {
         if let (Some(auth_string), Some(conn)) = (self.auth_string.as_ref(), self.connection_info.as_ref()) {
             // Convert the hashes into a string concatenated with `|`
             let hashes = torrents.iter()

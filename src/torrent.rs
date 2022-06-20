@@ -3,7 +3,7 @@ use serde_repr::*;
 use serde_with::{CommaSeparator};
 
 /// A torrent's information from the qbittorrent client.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct TorrentInfo {
     /// Time (Unix Epoch) when the torrent was added to the client
     pub added_on: u64,
@@ -224,6 +224,12 @@ pub enum TorrentState {
     Unknown,
 }
 
+impl Default for TorrentState {
+    fn default() -> Self {
+        TorrentState::Unknown
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TorrentTracker {
     /// Tracker URL
@@ -254,7 +260,7 @@ pub struct TorrentTracker {
     pub message: String,
 }
 
-#[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug)]
+#[derive(Serialize_repr, Deserialize_repr, PartialEq, Debug, Clone)]
 #[repr(u8)]
 pub enum TrackerStatus {
     /// Tracker is disabled (used for DHT, PeX, and LSD)
