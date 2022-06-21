@@ -1,20 +1,20 @@
 use crate::{error::ClientError, TorrentInfo, TorrentTracker, TorrentUpload};
 
-pub struct ConnectionInfo<'a> {
-    pub url: &'a str,
-    pub username: &'a str,
-    pub password: &'a str,
+pub struct ConnectionInfo {
+    pub url: String,
+    pub username: String,
+    pub password: String,
 }
 
 pub type ClientResult<T> = Result<T, ClientError>;
 
-pub struct QBittorrentClient<'a> {
+pub struct QBittorrentClient {
     client: reqwest::Client,
-    connection_info: Option<ConnectionInfo<'a>>,
+    connection_info: Option<ConnectionInfo>,
     auth_string: Option<String>,
 }
 
-impl<'a> QBittorrentClient<'a> {
+impl QBittorrentClient {
     pub fn new() -> Self {
         Self {
             client: reqwest::Client::new(),
@@ -24,12 +24,12 @@ impl<'a> QBittorrentClient<'a> {
     }
 
     /// Login to qBittorrent. This must be ran so that the client can make requests.
-    pub async fn login(&mut self, url: &'a str, username: &'a str, password: &'a str) -> ClientResult<()> {
+    pub async fn login(&mut self, url: &str, username: &str, password: &str) -> ClientResult<()> {
         // Send response to get auth string
-        let resp = self.client.post(format!("{}/api/v2/auth/login", url.clone()))
+        let resp = self.client.post(format!("{}/api/v2/auth/login", url))
             .form(&[
-                ("username", username.clone()),
-                ("password", password.clone()),
+                ("username", username.to_string()),
+                ("password", password.to_string()),
             ])
             .send().await?.error_for_status()?;
 
@@ -47,9 +47,9 @@ impl<'a> QBittorrentClient<'a> {
 
             // Store connection info
             self.connection_info = Some(ConnectionInfo {
-                url: url.clone(),
-                username: username.clone(),
-                password: password.clone(),
+                url: url.to_string(),
+                username: username.to_string(),
+                password: password.to_string(),
             });
 
             Ok(())
