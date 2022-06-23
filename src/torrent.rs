@@ -145,7 +145,7 @@ pub struct TorrentInfo {
 }
 
 /// An enum representing the state of a torrent in the client.
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Clone)]
 pub enum TorrentState {
     /// Some error occurred, applies to paused torrents
     #[serde(rename = "error")]

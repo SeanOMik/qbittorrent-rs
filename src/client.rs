@@ -1,4 +1,6 @@
-use crate::{error::ClientError, TorrentInfo, TorrentTracker, TorrentUpload};
+use serde_json::error::Category;
+
+use crate::{error::ClientError, torrent::{TorrentInfo, TorrentTracker, TorrentUpload}, common::*};
 
 pub struct ConnectionInfo {
     pub url: String,
@@ -25,6 +27,16 @@ impl QBittorrentClient {
 
     /// Login to qBittorrent. This must be ran so that the client can make requests.
     pub async fn login(&mut self, url: &str, username: &str, password: &str) -> ClientResult<()> {
+        // Remove trailing slash if necessary
+        let url = if url.ends_with("/") {
+            let mut chars = url.chars();
+            chars.next_back();
+
+            chars.as_str()
+        } else  {
+            url
+        };
+
         // Send response to get auth string
         let resp = self.client.post(format!("{}/api/v2/auth/login", url))
             .form(&[
@@ -59,10 +71,23 @@ impl QBittorrentClient {
     }
 
     /// Get a list of all torrents in the client.
-    pub async fn get_torrent_list(&self) -> ClientResult<Vec<TorrentInfo>> {
+    pub async fn get_torrent_list(&self, params: Option<GetTorrentListParams>) -> ClientResult<Vec<TorrentInfo>> {
         if let (Some(auth_string), Some(conn)) = (self.auth_string.as_ref(), self.connection_info.as_ref()) {
+            let mut url = format!("{}/api/v2/torrents/info", conn.url.clone());
+
+            if let Some(params) = params {
+                let mut params: &str = &params.to_params();
+
+                // Remove leading &
+                if params.starts_with("&") {
+                    params = &params[1..params.len() - 1];
+                }
+
+                url.push_str(&format!("?{}", params));
+            }
+
             // Construct and send request to qbittorrent
-            let resp = self.client.post(format!("{}/api/v2/torrents/info", conn.url.clone()))
+            let resp = self.client.post(url)
                 .header(reqwest::header::COOKIE, auth_string.clone())
                 .send().await?.error_for_status()?;
 
@@ -106,6 +131,24 @@ impl QBittorrentClient {
                 .form(&[
                     ("hash", torrent.hash.clone()),
                     ("urls", tracker_url),
+                ])
+                .send().await?.error_for_status()?;
+
+            Ok(())
+        } else {
+            Err(ClientError::Authorization)
+        }
+    }
+
+    /// Add multiple trackers to a torrent.
+    pub async fn add_torrent_trackers(&self, torrent: &TorrentInfo, trackers: Vec<String>) -> ClientResult<()> {
+        if let (Some(auth_string), Some(conn)) = (self.auth_string.as_ref(), self.connection_info.as_ref()) {
+            // Construct and send request to qbittorrent
+            let _resp = self.client.post(format!("{}/api/v2/torrents/addTrackers", conn.url.clone()))
+                .header(reqwest::header::COOKIE, auth_string.clone())
+                .form(&[
+                    ("hash", torrent.hash.clone()),
+                    ("urls", trackers.join("\n")),
                 ])
                 .send().await?.error_for_status()?;
 
